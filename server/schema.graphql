@@ -1,0 +1,45 @@
+type Query {
+    jobs: [Job]
+    job(id:ID!): Job 
+    company(id:ID!): Company 
+    # this job query can take id as an argument and then return data. ! means that id must be provided.  
+}
+
+# type Mutation{
+#     createJob(title: String, description: String): Job
+# }
+
+type Mutation{
+    createJob(input: CreateJobInput!): Job
+    deleteJob(id:ID!): Job
+    updateJob(input: UpdateJobInput): Job
+}
+
+"""This is the job type"""
+type Job {
+    id: ID!
+    title: String
+    """This is the __date__ for job creation. in the ISO-8601 format. """
+    date: String!
+    description: String
+    companyId: String
+    company: Company
+}
+
+type Company{
+    id: ID!
+    name: String
+    description: String
+    jobs: [Job!]!
+}
+
+input CreateJobInput{
+    title: String!
+    description: String
+}
+
+input UpdateJobInput{
+    id: ID!
+    title: String
+    description: String
+}
