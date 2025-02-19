@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import JobList from '../components/JobList';
 
 import { gql, request } from 'graphql-request'
+import { getAllJobs } from '../lib/graphql/queries';
+import { errorCodes } from '@apollo/client/invariantErrorCodes';
 
 function HomePage() {
 
@@ -24,15 +26,22 @@ function HomePage() {
     `
 
     request('http://localhost:9000/graphql', document)
-    .then((data) => {
-      console.log(data.jobs)
-      setJobs(data.jobs)
-    })
-    .catch((error) => console.log(error))
+      .then((data) => {
+        console.log(data.jobs)
+        setJobs(data.jobs)
+      })
+      .catch((error) => console.log(error))
   }
 
   useEffect(() => {
-    getJobs()
+    // graphql-request 
+    // getJobs()
+
+    // apollo client
+    getAllJobs()
+      .then((data) => setJobs(data))
+      .catch((error) => console.log(error))
+
   }, [])
 
   return (
