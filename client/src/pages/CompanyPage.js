@@ -1,42 +1,50 @@
 import { useParams } from 'react-router';
-import { companies } from '../lib/fake-data';
-import { gql, request } from 'graphql-request';
-import { useEffect, useState } from 'react';
 import JobList from '../components/JobList';
+
+import { useQuery} from '@apollo/client'
+import { companyByIdQuery } from '../lib/graphql/queries';
 
 function CompanyPage() {
   const { companyId } = useParams();
 
-  const [company, setCompany] = useState({})
+  // the below code together with useEffect is used when we are not using useQuery from apollo client
+  // const get = async () => {
+  //   console.log("get job called funciton")
+  //   const document = gql`
+  //       query CompanyById($id: ID!){
+  //         company(id: $id){
+  //           id
+  //           name
+  //           description
+  //           jobs {
+  //             id
+  //             date
+  //             title
+  //           }
+  //       }
+  //     }
+  //   `
+  //   const data = await request('http://localhost:9000/graphql', document, { id: companyId })
+  //   setCompany(data.company)
+  //   console.log("company:", data)
 
-  const get = async () => {
-    console.log("get job called funciton")
-    const document = gql`
-        query CompanyById($id: ID!){
-          company(id: $id){
-            id
-            name
-            description
-            jobs {
-              id
-              date
-              title
-            }
-        }
-      }
-    `
-    const data = await request('http://localhost:9000/graphql', document, { id: companyId })
-    setCompany(data.company)
-    console.log("company:", data)
+  // }
 
-  }
+  // useEffect(() => {
+  //   get(companyId)
+  // }, [companyId])
 
-  useEffect(() => {
-    get(companyId)
-  }, [companyId])
+  const { data, error, loading } = useQuery(companyByIdQuery, {
+    variables: {
+      id: companyId
+    }
+  })
 
-  if (!company) return <p>Loading..</p>
+  if(loading) return <p>Loading..</p>
 
+  if(error) return <p>No Data!!</p>
+
+  const { company } = data
 
   return (
     <div>

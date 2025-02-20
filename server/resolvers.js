@@ -1,12 +1,13 @@
-import { createJob, deleteJob, getJob, getJobByCompany, getJobs, updateJob } from "./db/jobs.js";
+import { createJob, deleteJob, getJob, getJobByCompany, getJobCounts, getJobs, updateJob } from "./db/jobs.js";
 import { getCompany } from "./db/companies.js";
 import { GraphQLError } from "graphql";
 
 export const resolvers = {
     Query: {
-        jobs: async () => {
-            const jobs = await getJobs()
-            return jobs
+        jobs: async (_root, { limit, offset }) => {
+            const jobs = await getJobs(limit, offset)
+            const count = await getJobCounts()
+            return { items: jobs, totalCount: count }
         },
         job: (root, args) => getJob(args.id),
         company: async (root, args) => {

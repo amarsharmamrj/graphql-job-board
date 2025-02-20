@@ -1,55 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import JobList from '../components/JobList';
+import { useJobs } from '../lib/graphql/hooks';
+import PaginationBar from '../components/PaginationBar';
 
-import { gql, request } from 'graphql-request'
-import { getAllJobs } from '../lib/graphql/queries';
-import { errorCodes } from '@apollo/client/invariantErrorCodes';
+const JOBS_PER_PAGE = 2
 
 function HomePage() {
+  const [currentPage, setCurrentPage] = useState(1)
+  const { jobs, loading, error } = useJobs(JOBS_PER_PAGE, (currentPage - 1) * JOBS_PER_PAGE)
 
-  const [jobs, setJobs] = useState([])
+  const totalPages = Math.ceil(jobs?.totalCount / JOBS_PER_PAGE)
 
-  const getJobs = async () => {
-    const document = gql`
-    query{
-  jobs{
-    id,
-    title,
-    date,
-    description,
-    company{
-      id,
-      name
-    }
-  }
-}
-    `
 
-    request('http://localhost:9000/graphql', document)
-      .then((data) => {
-        console.log(data.jobs)
-        setJobs(data.jobs)
-      })
-      .catch((error) => console.log(error))
-  }
-
-  useEffect(() => {
-    // graphql-request 
-    // getJobs()
-
-    // apollo client
-    getAllJobs()
-      .then((data) => setJobs(data))
-      .catch((error) => console.log(error))
-
-  }, [])
+  if (loading) return <p>Loading..</p>
+  if (error) return <p>Error</p>
 
   return (
     <div>
       <h1 className="title">
         Job Board
       </h1>
-      <JobList jobs={jobs} />
+
+      <PaginationBar currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+
+      <JobList jobs={jobs?.items} />
     </div>
   );
 }
